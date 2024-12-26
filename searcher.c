@@ -17,7 +17,7 @@ int contains_line(const char *filename, const char *search_line) {
   char curr_line[MAX_LINE_LEN];
   while (fgets(curr_line, sizeof(curr_line), file_ptr)) {
     if (strstr(curr_line, search_line)) {
-      printf("%sfound in file %s.\n", curr_line, filename);
+      printf("%sfound in file %s\n", curr_line, filename);
       count++;
     }
   }
@@ -44,6 +44,9 @@ int main() {
     }
     printf("Enter text to search: ");
     scanf("%s", search_line);
+    
+    printf("CTRL + C to exit.");
+    printf("\n---=-=- LINES FOUND -=-=---\n");
 
     int found = 0;
     int count = 0;
@@ -63,7 +66,7 @@ int main() {
     }
 
     if (found == 0) {
-      printf("No files contain the line \"%s\".\n", search_line);
+      printf("No files contain the line \"%s\"\n", search_line);
     } else {
       printf("%d files containing line\n", found);
       printf("%d total instances\n", count);
