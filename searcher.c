@@ -42,10 +42,9 @@ int main() {
       perror("ERROR: Invalid directory\n");
       return -1;
     }
+    
     printf("Enter text to search: ");
     scanf("%s", search_line);
-    
-    printf("CTRL + C to exit.");
     printf("\n---=-=- LINES FOUND -=-=---\n");
 
     int found = 0;
