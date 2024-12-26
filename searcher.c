@@ -2,68 +2,74 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #define MAX_LINE_LEN 2048
 
 int contains_line(const char *filename, const char *search_line) {
+  int count = 0;
   FILE *file_ptr = fopen(filename, "r");
   if (file_ptr == NULL) {
-    perror("ERROR: Invalid file");
-    return -1;
+    perror("ERROR: Invalid file\n");
+    return 0;
   }
 
   char curr_line[MAX_LINE_LEN];
   while (fgets(curr_line, sizeof(curr_line), file_ptr)) {
     if (strstr(curr_line, search_line)) {
-      fclose(file_ptr);
-      return 1;
+      printf("%sfound in file %s.\n", curr_line, filename);
+      count++;
     }
   }
 
   fclose(file_ptr);
-  return -1;
+  return count;
 }
 
 int main() {
-  DIR *dir = NULL;
-  struct dirent *entry;
-  char search_line[MAX_LINE_LEN];
+  /* Temporary true loop for now, ctrl + c to exit */
+  /* REMOVE LATER */
+  while(1) {
+    DIR *dir = NULL;
+    struct dirent *entry;
+    char search_line[MAX_LINE_LEN];
 
-  /* ENTER DIRECTORY/FOLDER CONTAINING FILES */
-  char dir_path[] = "./memories-off-2nd-main";
-  dir = opendir(dir_path);
+    /* ENTER DIRECTORY/FOLDER CONTAINING FILES */
+    char dir_path[] = "./memories-off-2nd-main";
+    dir = opendir(dir_path);
 
-  if (!dir) {
-    perror("ERROR: Invalid directory");
-    return -1;
-  }
+    if (!dir) {
+      perror("ERROR: Invalid directory\n");
+      return -1;
+    }
+    printf("Enter text to search: ");
+    scanf("%s", search_line);
 
-  printf("Enter text to search: ");
-  scanf("%s", search_line);
+    int found = 0;
+    int count = 0;
 
-  int found = 0;
+    while ((entry = readdir(dir)) != NULL) {
+      /* Check if is of a certain file type (this case .txt) */
+      if (strstr(entry->d_name, ".txt")) {
+        char file_path[MAX_LINE_LEN];
+        snprintf(file_path, sizeof(file_path), "%s/%s", dir_path, entry->d_name);
 
-  while ((entry = readdir(dir)) != NULL) {
-    /* Check if is of a certain file type (this case .txt) */
-    if (strstr(entry->d_name, ".txt")) {
-      char file_path[MAX_LINE_LEN];
-      snprintf(file_path, sizeof(file_path), "%s/%s", dir_path, entry->d_name);
-
-      if (contains_line(file_path, search_line) == 1) {
-        found++;
+        int contains_status = contains_line(file_path, search_line);
+        if (contains_status != 0) {
+          found++;
+          count += contains_status;
+        }
       }
     }
-  }
 
-  if (found == 0) {
-    printf("No files contain the line \"%s\".\n", search_line);
-  } else {
-    printf("%d instances of the line \"%s\".\n", found, search_line);
-  }
+    if (found == 0) {
+      printf("No files contain the line \"%s\".\n", search_line);
+    } else {
+      printf("%d files containing line\n", found);
+      printf("%d total instances\n", count);
+    }
 
-  closedir(dir);
+    closedir(dir);
+  }
   return 0;
 }
